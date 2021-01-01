@@ -1,45 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Sudoku_Solver
 {
     class Sudoku
     {
-        private const int SIZE = 81;
+        public const int SIZE = 81;
 
         private Field[] game = new Field[SIZE];
 
         public Sudoku(int[] init)
         {
-            for(int i = 0; i < SIZE; i++)
+            for (int i = 0; i < SIZE; i++)
             {
                 game[i] = new Field();
 
                 if (init[i] == 0)
                 {
-                    for(int j = 1; j < 10; j++)
+                    for (int j = 1; j < 10; j++)
                     {
                         game[i].AddPossibility(j);
                     }
-                } else
+                }
+                else
                 {
                     game[i].Value = init[i];
                 }
             }
         }
 
-        public int Get (int index)
+        public int Get(int index)
         {
             return game[index].Value;
         }
 
-        public void Set (int index, int value)
+        public void Set(int index, int value)
         {
             game[index].Value = value;
         }
 
-        public void RemovePossibility (int index, int value)
+        public List<int> GetPossibilities(int index)
+        {
+            return game[index].GetPossibilities();
+        }
+
+        public void RemovePossibility(int index, int value)
         {
             game[index].RemovePossibility(value);
         }

@@ -13,7 +13,9 @@ namespace Sudoku_Solver
             init[56] = 8; init[57] = 5; init[58] = 4; init[59] = 1; init[60] = 6; init[64] = 7; init[65] = 2; init[69] = 4; init[70] = 9; init[76] = 7;
 
             Sudoku sudoku = new Sudoku(init);
-            Console.WriteLine("Hello World");
+            Solver solver = new Solver(sudoku);
+            solver.Solve();
+            Console.WriteLine("Sudoku solver finished");
         }
     }
 }
