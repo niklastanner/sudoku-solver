@@ -15,6 +15,7 @@ namespace Sudoku_Solver
         public Sudoku Solve()
         {
             int i = 0;
+            int count = 0;
             do
             {
                 List<int> toRemove = CheckSquare(i);
@@ -52,9 +53,16 @@ namespace Sudoku_Solver
                 }
 
                 i = (i + 1) % Sudoku.SIZE;
-            } while (!CheckSolved());
+                count++;
+            } while (!CheckSolved() && count < 10_000_000);
 
-            Console.WriteLine("Solved it in " + i + " iterations");
+            if (CheckSolved())
+            {
+                Console.WriteLine("Solved it in " + count + " iterations\n");
+            } else
+            {
+                Console.WriteLine("I am way too dumb to solve this sudoku\n");
+            }
 
             return sudoku;
         }
