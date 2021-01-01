@@ -8,37 +8,40 @@ namespace Sudoku_Solver
     {
         private const int SIZE = 81;
 
-        private int?[,] game = new int?[SIZE,11];
+        private Field[] game = new Field[SIZE];
 
-        public Sudoku(int?[,] init)
+        public Sudoku(int[] init)
         {
-            game = init;
-
             for(int i = 0; i < SIZE; i++)
             {
-                if(game[i,0] == null)
+                game[i] = new Field();
+
+                if (init[i] == 0)
                 {
-                    for(int j = 1; j < 11; j++)
+                    for(int j = 1; j < 10; j++)
                     {
-                        game[i, j] = j-1;
+                        game[i].AddPossibility(j);
                     }
+                } else
+                {
+                    game[i].Value = init[i];
                 }
             }
         }
 
-        public int? Get (int index)
+        public int Get (int index)
         {
-            return game[index, 0];
+            return game[index].Value;
         }
 
-        public void Set (int index, int? value)
+        public void Set (int index, int value)
         {
-            game[index, 0] = value;
+            game[index].Value = value;
         }
 
         public void RemovePossibility (int index, int value)
         {
-            game[index, value] = null;
+            game[index].RemovePossibility(value);
         }
     }
 }
