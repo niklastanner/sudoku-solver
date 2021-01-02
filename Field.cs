@@ -22,5 +22,10 @@ namespace Sudoku_Solver
         {
             possibilities.Remove(value);
         }
+
+        public void RemoveAllPossibilities()
+        {
+            possibilities = new List<int>();
+        }
     }
 }

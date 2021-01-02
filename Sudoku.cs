@@ -33,6 +33,11 @@ namespace Sudoku_Solver
             return game[index].Value;
         }
 
+        public Field GetField(int index)
+        {
+            return game[index];
+        }
+
         public void Set(int index, int value)
         {
             game[index].Value = value;
@@ -46,6 +51,11 @@ namespace Sudoku_Solver
         public void RemovePossibility(int index, int value)
         {
             game[index].RemovePossibility(value);
+        }
+
+        public void RemoveAllPossibilities(int index)
+        {
+            game[index].RemoveAllPossibilities();
         }
     }
 }
