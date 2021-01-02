@@ -133,9 +133,10 @@ namespace Sudoku_Solver
         {
             int horizontal = index / 9 * 9;
             int vertical = index % 9;
+            int square = (index / 27 * 27) + (index % 9) - (index % 3);
             List<Field> horizontalValues = new List<Field>();
             List<Field> verticalValues = new List<Field>();
-            List<int> squareValues = new List<int>();
+            List<Field> squareValues = new List<Field>();
             List<int> ownPossibilities = sudoku.GetPossibilities(index);
 
             // Get all possibilities from the empty fields in a row or square
@@ -153,38 +154,57 @@ namespace Sudoku_Solver
                     verticalValues.Add(sudoku.GetField(vertical + i));
                 }
             }
-
-            squareValues = CheckSquare(index);
+            for (int j = 0; j <= 18; j += 9)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    if (sudoku.Get(square + i + j) == 0 && (square + i + j) != index)
+                    {
+                        squareValues.Add(sudoku.GetField(square + i + j));
+                    }
+                }
+            }
 
             // Use the collected possibilities to set a value
             foreach (int value in ownPossibilities)
             {
-                if (!squareValues.Contains(value))
+
+                bool foundHorizontal = false;
+                bool fountVertical = false;
+                bool foundSquare = false;
+
+                foreach (Field field in horizontalValues)
                 {
-                    bool foundHorizontal = false;
-                    bool fountVertical = false;
-
-                    foreach (Field field in horizontalValues)
+                    if (field.GetPossibilities().Contains(value))
                     {
-                        if (field.GetPossibilities().Contains(value)){
-                            foundHorizontal = true;
-                            break;
-                        }
-                    }
-
-                    foreach (Field field in verticalValues)
-                    {
-                        if (field.GetPossibilities().Contains(value)){
-                            fountVertical = true;
-                            break;
-                        }
-                    }
-
-                    if (!foundHorizontal || !fountVertical)
-                    {
-                        return value;
+                        foundHorizontal = true;
+                        break;
                     }
                 }
+
+                foreach (Field field in verticalValues)
+                {
+                    if (field.GetPossibilities().Contains(value))
+                    {
+                        fountVertical = true;
+                        break;
+                    }
+                }
+
+                foreach (Field field in squareValues)
+                {
+                    if (field.GetPossibilities().Contains(value))
+                    {
+                        foundSquare = true;
+                        break;
+                    }
+                }
+
+                if (!foundHorizontal || !fountVertical || !foundSquare)
+                {
+                    return value;
+                }
+
             }
 
             return 0;
