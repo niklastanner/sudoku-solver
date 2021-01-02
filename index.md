@@ -1,4 +1,4 @@
-## Welcome to Sudoku Solver
+# Welcome to Sudoku Solver
 
 This C# Project solves sudokus.
 Add your Sudoku to Program.cs (There are some examples)
