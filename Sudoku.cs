@@ -5,6 +5,8 @@ namespace Sudoku_Solver
     class Sudoku
     {
         public const int SIZE = 81;
+        private readonly object pLocker = new object();
+        private readonly object vLocker = new object();
 
         private Field[] game = new Field[SIZE];
 
@@ -40,7 +42,10 @@ namespace Sudoku_Solver
 
         public void Set(int index, int value)
         {
-            game[index].Value = value;
+            lock (vLocker)
+            {
+                game[index].Value = value;
+            }
         }
 
         public List<int> GetPossibilities(int index)
@@ -50,12 +55,19 @@ namespace Sudoku_Solver
 
         public void RemovePossibility(int index, int value)
         {
-            game[index].RemovePossibility(value);
+
+            lock (pLocker)
+            {
+                game[index].RemovePossibility(value);
+            }
         }
 
         public void RemoveAllPossibilities(int index)
         {
-            game[index].RemoveAllPossibilities();
+            lock (pLocker)
+            {
+                game[index].RemoveAllPossibilities();
+            }
         }
     }
 }

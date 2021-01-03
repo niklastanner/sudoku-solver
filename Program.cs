@@ -15,9 +15,9 @@ namespace Sudoku_Solver
                         init[56] = 8; init[57] = 5; init[58] = 4; init[59] = 1; init[60] = 6; init[64] = 7; init[65] = 2; init[69] = 4; init[70] = 9; init[76] = 7;*/
 
             // Example for a middle hard sudoku
-            /*init[1] = 3; init[3] = 4; init[5] = 2; init[7] = 9; init[11] = 9; init[13] = 5; init[15] = 8; init[18] = 2; init[26] = 1;
-            init[29] = 8; init[30] = 5; init[32] = 9; init[33] = 6; init[40] = 7; init[47] = 2; init[48] = 3; init[50] = 6; init[51] = 1;
-            init[54] = 6; init[62] = 9; init[65] = 1; init[67] = 6; init[69] = 2; init[73] = 2; init[75] = 7; init[77] = 4; init[79] = 6;*/
+            /*            init[1] = 3; init[3] = 4; init[5] = 2; init[7] = 9; init[11] = 9; init[13] = 5; init[15] = 8; init[18] = 2; init[26] = 1;
+                        init[29] = 8; init[30] = 5; init[32] = 9; init[33] = 6; init[40] = 7; init[47] = 2; init[48] = 3; init[50] = 6; init[51] = 1;
+                        init[54] = 6; init[62] = 9; init[65] = 1; init[67] = 6; init[69] = 2; init[73] = 2; init[75] = 7; init[77] = 4; init[79] = 6;*/
 
             // Example for a hard sudoku
             init[2] = 2; init[3] = 6; init[5] = 9; init[11] = 7; init[12] = 2; init[17] = 8; init[22] = 1; init[25] = 4;

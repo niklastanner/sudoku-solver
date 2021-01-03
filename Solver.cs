@@ -1,84 +1,70 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Sudoku_Solver
 {
     class Solver
     {
-        private Sudoku sudoku;
+        private static Sudoku sudoku;
+        private readonly List<Thread> threads = new List<Thread>();
+        private readonly int lifespan = 1000 * 5;
 
         public Solver(Sudoku sudoku)
         {
-            this.sudoku = sudoku;
+            Solver.sudoku = sudoku;
         }
 
-        public Sudoku Solve()
+        public void Solve()
         {
-            int i = 0;
-            int count = 0;
-            do
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            threads.Add(new Thread(SolvingAlgorithms.SimpleElimination));
+            threads.Add(new Thread(SolvingAlgorithms.HiddenElimination));
+
+            foreach (Thread thread in threads)
             {
-                List<int> toRemove = CheckSquare(i);
-                List<int> horizontal = CheckHorizontalLine(i);
-                foreach (int v in horizontal)
-                {
-                    if (!toRemove.Contains(v))
-                    {
-                        toRemove.Add(v);
-                    }
-                }
+                thread.IsBackground = true;
+                thread.Start(sudoku);
+            }
 
-                List<int> vertical = CheckVerticalLine(i);
-                foreach (int v in vertical)
-                {
-                    if (!toRemove.Contains(v))
-                    {
-                        toRemove.Add(v);
-                    }
-                }
+            WaitForAllThreads(lifespan);
 
-                List<int> possibilities = sudoku.GetPossibilities(i);
-                foreach (int v in toRemove)
-                {
-                    if (possibilities.Contains(v))
-                    {
-                        sudoku.RemovePossibility(i, v);
-                    }
-                }
+            stopWatch.Stop();
 
-                if (possibilities.Count == 1)
-                {
-                    sudoku.Set(i, possibilities[0]);
-                    sudoku.RemovePossibility(i, possibilities[0]);
-                }
+            TimeSpan ts = stopWatch.Elapsed;
 
-                if (possibilities.Count > 1)
-                {
-                    int value = CheckNeighbors(i);
-                    if (value != 0)
-                    {
-                        sudoku.Set(i, value);
-                        sudoku.RemoveAllPossibilities(i);
-                    }
-                }
-
-                i = (i + 1) % Sudoku.SIZE;
-                count++;
-            } while (!CheckSolved() && count < 10_000_000);
+            // Format and display the TimeSpan value.
+            Console.WriteLine("\nRunTime {0}.{1} Seconds", ts.Seconds, ts.Milliseconds / 10);
 
             if (ValidateSudoku())
             {
-                Console.WriteLine("Solved it in " + count + " iterations\n");
+                Console.WriteLine("Solved correctly\n");
             }
             else
             {
                 Console.WriteLine("I am way too dumb to solve this sudoku\n");
             }
-
-            return sudoku;
         }
 
-        private List<int> CheckSquare(int index)
+        private void WaitForAllThreads(int lifespan)
+        {
+            foreach (Thread thread in threads)
+            {
+                Stopwatch timeout = Stopwatch.StartNew();
+                if (!thread.Join(lifespan))
+                {
+                    break;
+                }
+                timeout.Stop();
+                lifespan -= (int)timeout.ElapsedMilliseconds;
+            }
+        }
+
+        #region Validation Methods
+        public static List<int> GetNumbersInSquare(int index, Sudoku sudoku)
         {
             List<int> tuple = new List<int>();
             index = (index / 27 * 27) + (index % 9) - (index % 3);
@@ -97,7 +83,7 @@ namespace Sudoku_Solver
             return tuple;
         }
 
-        private List<int> CheckHorizontalLine(int index)
+        public static List<int> GetNumbersInHorizontalLine(int index, Sudoku sudoku)
         {
             List<int> tuple = new List<int>();
             index = index / 9 * 9;
@@ -113,7 +99,7 @@ namespace Sudoku_Solver
             return tuple;
         }
 
-        private List<int> CheckVerticalLine(int index)
+        public static List<int> GetNumbersInVerticalLine(int index, Sudoku sudoku)
         {
             List<int> tuple = new List<int>();
             index = index % 9;
@@ -129,88 +115,7 @@ namespace Sudoku_Solver
             return tuple;
         }
 
-        private int CheckNeighbors(int index) // Set recursion depth limit
-        {
-            int horizontal = index / 9 * 9;
-            int vertical = index % 9;
-            int square = (index / 27 * 27) + (index % 9) - (index % 3);
-            List<Field> horizontalValues = new List<Field>();
-            List<Field> verticalValues = new List<Field>();
-            List<Field> squareValues = new List<Field>();
-            List<int> ownPossibilities = sudoku.GetPossibilities(index);
-
-            // Get all possibilities from the empty fields in a row or square
-            for (int i = 0; i < 9; i++)
-            {
-                if (sudoku.Get(horizontal + i) == 0 && (horizontal + i) != index)
-                {
-                    horizontalValues.Add(sudoku.GetField(horizontal + i));
-                }
-            }
-            for (int i = 0; i < (73 + vertical); i += 9)
-            {
-                if (sudoku.Get(vertical + i) == 0 && (vertical + i) != index)
-                {
-                    verticalValues.Add(sudoku.GetField(vertical + i));
-                }
-            }
-            for (int j = 0; j <= 18; j += 9)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    if (sudoku.Get(square + i + j) == 0 && (square + i + j) != index)
-                    {
-                        squareValues.Add(sudoku.GetField(square + i + j));
-                    }
-                }
-            }
-
-            // Use the collected possibilities to set a value
-            foreach (int value in ownPossibilities)
-            {
-
-                bool foundHorizontal = false;
-                bool fountVertical = false;
-                bool foundSquare = false;
-
-                foreach (Field field in horizontalValues)
-                {
-                    if (field.GetPossibilities().Contains(value))
-                    {
-                        foundHorizontal = true;
-                        break;
-                    }
-                }
-
-                foreach (Field field in verticalValues)
-                {
-                    if (field.GetPossibilities().Contains(value))
-                    {
-                        fountVertical = true;
-                        break;
-                    }
-                }
-
-                foreach (Field field in squareValues)
-                {
-                    if (field.GetPossibilities().Contains(value))
-                    {
-                        foundSquare = true;
-                        break;
-                    }
-                }
-
-                if (!foundHorizontal || !fountVertical || !foundSquare)
-                {
-                    return value;
-                }
-
-            }
-
-            return 0;
-        }
-
-        private bool CheckSolved()
+        public static bool IsSolved()
         {
             for (int i = 0; i < Sudoku.SIZE; i++)
             {
@@ -222,26 +127,54 @@ namespace Sudoku_Solver
             return true;
         }
 
-        private bool ValidateSudoku()
+        public static bool ValidateSudoku()
         {
             for (int i = 0; i < Sudoku.SIZE; i += 9)
             {
-                List<int> row = new List<int>();
+                List<int> Checkblock;
 
-                for (int j = 0; j < 9; j++)
+                Checkblock = GetNumbersInSquare(i, sudoku);
+                if (Checkblock.Count != 9)
                 {
-                    if (row.Contains(sudoku.Get(i + j)))
+                    return false;
+                }
+                for (int j = 1; j < 10; j++)
+                {
+                    if (!Checkblock.Contains(j))
                     {
                         return false;
                     }
-                    else
+                }
+
+                Checkblock = GetNumbersInHorizontalLine(i, sudoku);
+                if (Checkblock.Count != 9)
+                {
+                    return false;
+                }
+                for (int j = 1; j < 10; j++)
+                {
+                    if (!Checkblock.Contains(j))
                     {
-                        row.Add(sudoku.Get(i + j));
+                        return false;
+                    }
+                }
+
+                Checkblock = GetNumbersInVerticalLine(i, sudoku);
+                if (Checkblock.Count != 9)
+                {
+                    return false;
+                }
+                for (int j = 1; j < 10; j++)
+                {
+                    if (!Checkblock.Contains(j))
+                    {
+                        return false;
                     }
                 }
             }
 
             return true;
         }
+        #endregion
     }
 }
