@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Sudoku_Solver
 {
@@ -67,6 +68,49 @@ namespace Sudoku_Solver
             lock (pLocker)
             {
                 game[index].RemoveAllPossibilities();
+            }
+        }
+
+        public void PrintSudoku()
+        {
+            string line = "";
+            string separator = "";
+
+            for (int i = 0; i < 38; i++)
+            {
+                separator += "-";
+            }
+
+            Console.WriteLine(separator);
+
+            for (int i = 0; i < Sudoku.SIZE; i++)
+            {
+                if (i % 3 == 0)
+                {
+                    line += " | ";
+                }
+
+                line += " ";
+                if (Get(i) == 0)
+                {
+                    line += "_";
+                }
+                else
+                {
+                    line += Get(i);
+                }
+                line += " ";
+
+                if (i % 9 == 8)
+                {
+                    line += " | ";
+                    Console.WriteLine(line);
+                    line = "";
+                }
+                if (i % 27 == 26)
+                {
+                    Console.WriteLine(separator);
+                }
             }
         }
     }

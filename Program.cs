@@ -25,58 +25,14 @@ namespace Sudoku_Solver
             init[55] = 5; init[58] = 3; init[63] = 6; init[68] = 7; init[69] = 9; init[75] = 8; init[77] = 6; init[78] = 5;
 
 
-            Sudoku sudoku = new Sudoku(init);
-            Console.WriteLine("Trying to solve the following Sudoku:");
-            Output(sudoku);
-
-            Solver solver = new Solver(sudoku);
-            solver.Solve();
-            Console.WriteLine("Sudoku solver finished:");
-
-            Output(sudoku);
-        }
-
-        static void Output(Sudoku sudoku)
-        {
-            string line = "";
-            string separator = "";
-
-            for (int i = 0; i < 38; i++)
-            {
-                separator += "-";
-            }
 
             Console.WriteLine(separator);
 
-            for (int i = 0; i < Sudoku.SIZE; i++)
-            {
-                if (i % 3 == 0)
-                {
-                    line += " | ";
-                }
 
-                line += " ";
-                if (sudoku.Get(i) == 0)
-                {
-                    line += "_";
-                }
-                else
-                {
-                    line += sudoku.Get(i);
-                }
-                line += " ";
+            Sudoku sudoku = new Sudoku(init);
 
-                if (i % 9 == 8)
-                {
-                    line += " | ";
-                    Console.WriteLine(line);
-                    line = "";
-                }
-                if (i % 27 == 26)
-                {
-                    Console.WriteLine(separator);
-                }
-            }
+            Solver solver = new Solver(sudoku);
+            solver.Solve();
         }
     }
 }
