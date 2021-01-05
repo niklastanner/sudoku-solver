@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace Sudoku_Solver
 {
@@ -7,7 +8,7 @@ namespace Sudoku_Solver
         private static readonly List<T> list = new List<T>();
         private static readonly object locker = new object();
 
-        public bool Add(T t)
+        public bool Acquire(T t)
         {
             lock (locker)
             {
@@ -20,11 +21,24 @@ namespace Sudoku_Solver
             }
         }
 
-        public bool Remove(T t)
+        public bool Release(T t)
         {
             lock (locker)
             {
-                return list.Remove(t);
+                bool removed = list.Remove(t);
+                Monitor.PulseAll(locker);
+                return removed;
+            }
+        }
+
+        public void WaitingAcquire(T t)
+        {
+            while (!Acquire(t))
+            {
+                lock (locker)
+                {
+                    Monitor.Wait(locker);
+                }
             }
         }
     }
