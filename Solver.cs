@@ -18,11 +18,16 @@ namespace Sudoku_Solver
 
         public void Solve()
         {
+            Console.WriteLine("Trying to solve the following Sudoku:");
+            sudoku.PrintSudoku();
+
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
+            threads.Add(new Thread(SolvingAlgorithms.FillUniqueFields));
             threads.Add(new Thread(SolvingAlgorithms.SimpleElimination));
             threads.Add(new Thread(SolvingAlgorithms.HiddenElimination));
+            threads.Add(new Thread(SolvingAlgorithms.NakedPair));
 
             foreach (Thread thread in threads)
             {
@@ -30,14 +35,15 @@ namespace Sudoku_Solver
                 thread.Start(sudoku);
             }
 
-            WaitForAllThreads(lifespan);
+            WaitForAllThreads(lifespan);/*
+            while (true) ;*/
 
             stopWatch.Stop();
 
             TimeSpan ts = stopWatch.Elapsed;
 
             // Format and display the TimeSpan value.
-            Console.WriteLine("\nRunTime {0}.{1} Seconds", ts.Seconds, ts.Milliseconds / 10);
+            Console.WriteLine("\nRunTime {0}.{1} Seconds", ts.Seconds, ts.Milliseconds);
 
             if (ValidateSudoku())
             {
@@ -47,6 +53,8 @@ namespace Sudoku_Solver
             {
                 Console.WriteLine("I am way too dumb to solve this sudoku\n");
             }
+
+            sudoku.PrintSudoku();
         }
 
         private void WaitForAllThreads(int lifespan)
@@ -63,58 +71,98 @@ namespace Sudoku_Solver
             }
         }
 
-        #region Validation Methods
-        public static List<int> GetNumbersInSquare(int index, Sudoku sudoku)
+        #region Support Methods
+        public static List<Field> GetFieldsInSquare(int index, Sudoku sudoku)
         {
-            List<int> tuple = new List<int>();
+            List<Field> tuple = new List<Field>();
             index = (index / 27 * 27) + (index % 9) - (index % 3);
 
             for (int j = 0; j <= 18; j += 9)
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    if (sudoku.Get(index + j + i) != 0)
-                    {
-                        tuple.Add(sudoku.Get(index + j + i));
-                    }
+                    tuple.Add(sudoku.GetField(index + j + i));
                 }
             }
 
             return tuple;
         }
 
-        public static List<int> GetNumbersInHorizontalLine(int index, Sudoku sudoku)
+        public static List<Field> GetFieldsInRow(int index, Sudoku sudoku)
         {
-            List<int> tuple = new List<int>();
+            List<Field> tuple = new List<Field>();
             index = index / 9 * 9;
 
             for (int i = 0; i < 9; i++)
             {
-                if (sudoku.Get(index + i) != 0)
-                {
-                    tuple.Add(sudoku.Get(index + i));
-                }
+                tuple.Add(sudoku.GetField(index + i));
             }
 
             return tuple;
         }
-
-        public static List<int> GetNumbersInVerticalLine(int index, Sudoku sudoku)
+        public static List<Field> GetFieldsInColumn(int index, Sudoku sudoku)
         {
-            List<int> tuple = new List<int>();
+            List<Field> tuple = new List<Field>();
             index = index % 9;
 
             for (int i = 0; i < (73 + index); i += 9)
             {
-                if (sudoku.Get(index + i) != 0)
+                tuple.Add(sudoku.GetField(index + i));
+            }
+
+            return tuple;
+        }
+
+        public static List<int> GetNumbersInSquare(int index, Sudoku sudoku)
+        {
+            List<int> tuple = new List<int>();
+            List<Field> collection = GetFieldsInSquare(index, sudoku);
+
+            foreach (Field field in collection)
+            {
+                if (field.Value != 0)
                 {
-                    tuple.Add(sudoku.Get(index + i));
+                    tuple.Add(field.Value);
                 }
             }
 
             return tuple;
         }
 
+        public static List<int> GetNumbersInRow(int index, Sudoku sudoku)
+        {
+            List<int> tuple = new List<int>();
+            List<Field> collection = GetFieldsInRow(index, sudoku);
+
+            foreach (Field field in collection)
+            {
+                if (field.Value != 0)
+                {
+                    tuple.Add(field.Value);
+                }
+            }
+
+            return tuple;
+        }
+
+        public static List<int> GetNumbersInColumn(int index, Sudoku sudoku)
+        {
+            List<int> tuple = new List<int>();
+            List<Field> collection = GetFieldsInColumn(index, sudoku);
+
+            foreach (Field field in collection)
+            {
+                if (field.Value != 0)
+                {
+                    tuple.Add(field.Value);
+                }
+            }
+
+            return tuple;
+        }
+        #endregion
+
+        #region Validation Methods
         public static bool IsSolved()
         {
             for (int i = 0; i < Sudoku.SIZE; i++)
@@ -146,7 +194,7 @@ namespace Sudoku_Solver
                     }
                 }
 
-                Checkblock = GetNumbersInHorizontalLine(i, sudoku);
+                Checkblock = GetNumbersInRow(i, sudoku);
                 if (Checkblock.Count != 9)
                 {
                     return false;
@@ -159,7 +207,7 @@ namespace Sudoku_Solver
                     }
                 }
 
-                Checkblock = GetNumbersInVerticalLine(i, sudoku);
+                Checkblock = GetNumbersInColumn(i, sudoku);
                 if (Checkblock.Count != 9)
                 {
                     return false;
