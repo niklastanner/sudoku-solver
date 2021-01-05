@@ -18,7 +18,7 @@ namespace Sudoku_Solver
             int index = 0;
             do
             {
-                if (locker.Add(index))
+                if (locker.Acquire(index))
                 {
                     Field field = sudoku.GetField(index);
                     if (field.Value == 0 && field.GetPossibilities().Count == 1)
@@ -26,11 +26,7 @@ namespace Sudoku_Solver
                         field.Value = field.GetPossibilities()[0];
                         field.RemoveAllPossibilities();
                     }
-                    locker.Remove(index);
-                    lock (locker)
-                    {
-                        Monitor.PulseAll(locker);
-                    }
+                    locker.Release(index);
                 }
 
                 index = (index + 1) % Sudoku.SIZE;
@@ -51,7 +47,7 @@ namespace Sudoku_Solver
             int index = 0;
             do
             {
-                if (locker.Add(index))
+                if (locker.Acquire(index))
                 {
                     if (sudoku.GetField(index).Value == 0)
                     {
@@ -90,11 +86,7 @@ namespace Sudoku_Solver
                         }
                     }
 
-                    locker.Remove(index);
-                    lock (locker)
-                    {
-                        Monitor.PulseAll(locker);
-                    }
+                    locker.Release(index);
                 }
 
                 index = (index + 1) % Sudoku.SIZE;
@@ -116,7 +108,7 @@ namespace Sudoku_Solver
             int index = 0;
             do
             {
-                if (locker.Add(index))
+                if (locker.Acquire(index))
                 {
                     if (sudoku.GetField(index).Value == 0)
                     {
@@ -172,11 +164,7 @@ namespace Sudoku_Solver
                         }
                     }
 
-                    locker.Remove(index);
-                    lock (locker)
-                    {
-                        Monitor.PulseAll(locker);
-                    }
+                    locker.Release(index);
                 }
 
                 index = (index + 1) % Sudoku.SIZE;
@@ -184,15 +172,15 @@ namespace Sudoku_Solver
         }
         #endregion
 
-        #region Naked Pair
+        #region Naked Group
         /// <summary>
-        /// Two cells in a row/column/square having only
-        /// the same pair of numbers are called a naked pair.
-        /// All other appearances of the two numbers in
+        /// Two cells in a row/column/square having onlythe same 
+        /// group (pair/triple/quad) of numbers are called a naked pair/triple/quad.
+        /// All other appearances of the numbers in
         /// the same row/column/square can be eliminated.
         /// </summary>
 
-        public static void NakedPair(object param)
+        public static void NakedGroup(object param)
         {
             Sudoku sudoku = (Sudoku)param;
 
@@ -201,35 +189,15 @@ namespace Sudoku_Solver
                 // Look for each row
                 for (int i = 0; i <= 72; i += 9)
                 {
-                    List<Field> horizontalFields = Solver.GetFieldsInRow(i, sudoku);
-                    List<Field> candidates = new List<Field>();
-
-                    foreach (Field field in horizontalFields)
-                    {
-                        if (field.Value == 0)
-                        {
-                            candidates.Add(field);
-                        }
-                    }
-
-                    NakedPairRemovePossibilities(candidates, sudoku);
+                    List<Field> candidates = Solver.GetEmptyFieldsInRow(i, sudoku);
+                    NakedGroupSearch(candidates, sudoku);
                 }
 
                 // Look for each column
                 for (int i = 0; i < 9; i++)
                 {
-                    List<Field> verticalFields = Solver.GetFieldsInColumn(i, sudoku);
-                    List<Field> candidates = new List<Field>();
-
-                    foreach (Field field in verticalFields)
-                    {
-                        if (field.Value == 0)
-                        {
-                            candidates.Add(field);
-                        }
-                    }
-
-                    NakedPairRemovePossibilities(candidates, sudoku);
+                    List<Field> candidates = Solver.GetEmptyFieldsInColumn(i, sudoku);
+                    NakedGroupSearch(candidates, sudoku);
                 }
 
                 // Look for each square
@@ -240,56 +208,85 @@ namespace Sudoku_Solver
                     if (!traversed.Contains(next))
                     {
                         traversed.Add(next);
-                        List<Field> squareFields = Solver.GetFieldsInSquare(i, sudoku);
-                        List<Field> candidates = new List<Field>();
-
-                        foreach (Field field in squareFields)
-                        {
-                            if (field.Value == 0)
-                            {
-                                candidates.Add(field);
-                            }
-                        }
-
-                        NakedPairRemovePossibilities(candidates, sudoku);
+                        List<Field> candidates = Solver.GetEmptyFieldsInSquare(i, sudoku);
+                        NakedGroupSearch(candidates, sudoku);
                     }
                 }
             } while (!Solver.IsSolved());
         }
 
-        private static void NakedPairRemovePossibilities(List<Field> candidates, Sudoku sudoku)
+        private static void NakedGroupSearch(List<Field> candidates, Sudoku sudoku)
         {
             for (int k = 0; k < candidates.Count; k++)
             {
                 Field field = candidates[k];
+                List<Field> pair = new List<Field>();
+                List<Field> triple = new List<Field>();
+                List<Field> quad = new List<Field>();
+                List<int> ownPossibilities = field.GetPossibilities();
+
                 for (int j = k + 1; j < candidates.Count; j++)
                 {
-                    List<int> ownPossibilities = field.GetPossibilities();
-                    if (ownPossibilities.Count == 2 && field.HasIdenticalPossibilities(candidates[j]))
+                    locker.Acquire(sudoku.IndexOf(field));
+                    if (field.HasIdenticalPossibilities(candidates[j]))
                     {
-                        foreach (Field otherField in candidates)
+                        // Look for pairs
+                        if (ownPossibilities.Count == 2)
                         {
-                            if (otherField != field && otherField != candidates[j])
-                            {
-                                int index = sudoku.IndexOf(otherField);
-                                while (!locker.Add(index))
-                                {
-                                    lock (locker)
-                                    {
-                                        Monitor.Wait(locker);
-                                    }
-                                }
-                                otherField.RemovePossibility(ownPossibilities[0]);
-                                otherField.RemovePossibility(ownPossibilities[1]);
-
-                                locker.Remove(index);
-                                lock (locker)
-                                {
-                                    Monitor.PulseAll(locker);
-                                }
-                            }
+                            pair.Add(candidates[j]);
+                        }
+                        // Look for triples
+                        else if (ownPossibilities.Count == 3)
+                        {
+                            triple.Add(candidates[j]);
+                        }
+                        // Look for quads
+                        else if (ownPossibilities.Count == 4)
+                        {
+                            quad.Add(candidates[j]);
                         }
                     }
+                    locker.Release(sudoku.IndexOf(field));
+                }
+
+                // The pair is full with one, because the first one is "field" which is not in the list
+                if(pair.Count == 1)
+                {
+                    pair.Add(field);
+                    NakedGroupRemove(candidates, pair, sudoku);
+                }
+
+                // The triple is full with two, because the first one is "field" which is not in the list
+                if (triple.Count == 2)
+                {
+                    triple.Add(field);
+                    NakedGroupRemove(candidates, triple, sudoku);
+                }
+
+                // The quad is full with three, because the first one is "field" which is not in the list
+                if (quad.Count == 3)
+                {
+                    quad.Add(field);
+                    NakedGroupRemove(candidates, quad, sudoku);
+                }
+            }
+        }
+
+        private static void NakedGroupRemove(List<Field> candidates, List<Field> group, Sudoku sudoku)
+        {
+            List<int> possibilities = group[0].GetPossibilities();
+            foreach (Field otherField in candidates)
+            {
+                if (!group.Contains(otherField))
+                {
+                    int index = sudoku.IndexOf(otherField);
+
+                    locker.Acquire(index);
+                    for (int i = 0; i < group.Count; i++)
+                    {
+                        sudoku.GetField(index).RemovePossibility(possibilities[i]);
+                    }
+                    locker.Release(index);
                 }
             }
         }

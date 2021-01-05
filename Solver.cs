@@ -27,7 +27,7 @@ namespace Sudoku_Solver
             threads.Add(new Thread(SolvingAlgorithms.FillUniqueFields));
             threads.Add(new Thread(SolvingAlgorithms.SimpleElimination));
             threads.Add(new Thread(SolvingAlgorithms.HiddenElimination));
-            threads.Add(new Thread(SolvingAlgorithms.NakedPair));
+            threads.Add(new Thread(SolvingAlgorithms.NakedGroup));
 
             foreach (Thread thread in threads)
             {
@@ -35,14 +35,14 @@ namespace Sudoku_Solver
                 thread.Start(sudoku);
             }
 
-            WaitForAllThreads(lifespan);/*
-            while (true) ;*/
+            WaitForAllThreads(lifespan);
+/*
+            while (true) ;   // For debug purposes only*/
 
             stopWatch.Stop();
 
             TimeSpan ts = stopWatch.Elapsed;
 
-            // Format and display the TimeSpan value.
             Console.WriteLine("\nRunTime {0}.{1} Seconds", ts.Seconds, ts.Milliseconds);
 
             if (ValidateSudoku())
@@ -88,6 +88,23 @@ namespace Sudoku_Solver
             return tuple;
         }
 
+        public static List<Field> GetEmptyFieldsInSquare(int index, Sudoku sudoku)
+        {
+            index = (index / 27 * 27) + (index % 9) - (index % 3);
+            List<Field> fields = GetFieldsInSquare(index, sudoku);
+            List<Field> newList = new List<Field>();
+
+            foreach (Field field in fields)
+            {
+                if (field.Value == 0)
+                {
+                    newList.Add(field);
+                }
+            }
+
+            return newList;
+        }
+
         public static List<Field> GetFieldsInRow(int index, Sudoku sudoku)
         {
             List<Field> tuple = new List<Field>();
@@ -100,6 +117,24 @@ namespace Sudoku_Solver
 
             return tuple;
         }
+
+        public static List<Field> GetEmptyFieldsInRow(int index, Sudoku sudoku)
+        {
+            index = index / 9 * 9;
+            List<Field> fields = GetFieldsInRow(index, sudoku);
+            List<Field> newList = new List<Field>();
+
+            foreach (Field field in fields)
+            {
+                if (field.Value == 0)
+                {
+                    newList.Add(field);
+                }
+            }
+
+            return newList;
+        }
+
         public static List<Field> GetFieldsInColumn(int index, Sudoku sudoku)
         {
             List<Field> tuple = new List<Field>();
@@ -111,6 +146,23 @@ namespace Sudoku_Solver
             }
 
             return tuple;
+        }
+
+        public static List<Field> GetEmptyFieldsInColumn(int index, Sudoku sudoku)
+        {
+            index = index % 9;
+            List<Field> fields = GetFieldsInColumn(index, sudoku);
+            List<Field> newList = new List<Field>();
+
+            foreach (Field field in fields)
+            {
+                if (field.Value == 0)
+                {
+                    newList.Add(field);
+                }
+            }
+
+            return newList;
         }
 
         public static List<int> GetNumbersInSquare(int index, Sudoku sudoku)
