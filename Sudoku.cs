@@ -71,6 +71,19 @@ namespace Sudoku_Solver
             }
         }
 
+        public int IndexOf(Field other)
+        {
+            for (int i = 0; i < SIZE; i++)
+            {
+                if(game[i] == other)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         public void PrintSudoku()
         {
             string line = "";

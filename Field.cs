@@ -27,5 +27,43 @@ namespace Sudoku_Solver
         {
             possibilities = new List<int>();
         }
+
+        public bool IsIdenticalField(Field other)
+        {
+            if (this == other)
+            {
+                return true;
+            }
+            if (other.Value != Value)
+            {
+                return false;
+            }
+            if (!HasIdenticalPossibilities(other))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool HasIdenticalPossibilities(Field other)
+        {
+            List<int> otherPossibilities = other.GetPossibilities();
+
+            if(possibilities.Count != otherPossibilities.Count)
+            {
+                return false;
+            }
+
+            foreach (int possibility in possibilities)
+            {
+                if (!otherPossibilities.Contains(possibility))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }
