@@ -227,7 +227,7 @@ namespace Sudoku_Solver
 
                 for (int j = k + 1; j < candidates.Count; j++)
                 {
-                    locker.Acquire(sudoku.IndexOf(field));
+                    locker.WaitingAcquire(sudoku.IndexOf(field));
                     if (field.HasIdenticalPossibilities(candidates[j]))
                     {
                         // Look for pairs
@@ -274,14 +274,14 @@ namespace Sudoku_Solver
 
         private static void NakedGroupRemove(List<Field> candidates, List<Field> group, Sudoku sudoku)
         {
-            List<int> possibilities = group[0].GetPossibilities();
+            List<int> possibilities = group[0].GetPossibilities().ConvertAll(v => v);
             foreach (Field otherField in candidates)
             {
                 if (!group.Contains(otherField))
                 {
                     int index = sudoku.IndexOf(otherField);
 
-                    locker.Acquire(index);
+                    locker.WaitingAcquire(index);
                     for (int i = 0; i < group.Count; i++)
                     {
                         sudoku.GetField(index).RemovePossibility(possibilities[i]);
