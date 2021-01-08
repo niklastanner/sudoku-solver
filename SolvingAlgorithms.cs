@@ -274,7 +274,9 @@ namespace Sudoku_Solver
 
         private static void NakedGroupRemove(List<Field> candidates, List<Field> group, Sudoku sudoku)
         {
-            List<int> possibilities = group[0].GetPossibilities().ConvertAll(v => v);
+            Field reference = group[0];
+            locker.WaitingAcquire(sudoku.IndexOf(reference));
+            List<int> possibilities = reference.GetPossibilities();
             foreach (Field otherField in candidates)
             {
                 if (!group.Contains(otherField))
@@ -289,6 +291,7 @@ namespace Sudoku_Solver
                     locker.Release(index);
                 }
             }
+            locker.Release(sudoku.IndexOf(reference));
         }
         #endregion
     }
