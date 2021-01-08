@@ -1,7 +1,12 @@
 # Welcome to Sudoku Solver
 
 This C# Project solves sudokus.
-Add your Sudoku to Program.cs (There are some examples)
+
+## How does it work?
+When started the user is requested to type in the sudoku into the console line by line.
+Empty fields are represented by a 0.
+
+Alternatively the factory method in Program.cs can be removed and a hardcoded sudoku can be used. (There are some examples)
 
 > init[index] = value;
 
