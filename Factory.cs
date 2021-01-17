@@ -4,7 +4,7 @@ namespace Sudoku_Solver
 {
     static class Factory
     {
-        public static Sudoku Create()
+        public static Sudoku CreateSudoku()
         {
             Console.WriteLine("Reading sudoku from user input");
             int[] init = new int[81];
