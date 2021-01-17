@@ -10,6 +10,7 @@ namespace Sudoku_Solver
         private static Sudoku sudoku;
         private readonly List<Thread> threads = new List<Thread>();
         private readonly int lifespan = 1000 * 5;
+        internal static readonly LockerList<int> locker = new LockerList<int>();
 
         public Solver(Sudoku sudoku)
         {
@@ -24,10 +25,10 @@ namespace Sudoku_Solver
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            threads.Add(new Thread(SolvingAlgorithms.FillUniqueFields));
-            threads.Add(new Thread(SolvingAlgorithms.SimpleElimination));
-            threads.Add(new Thread(SolvingAlgorithms.HiddenElimination));
-            threads.Add(new Thread(SolvingAlgorithms.NakedGroup));
+            threads.Add(new Thread(SolvingAlgorithms.FillUniqueFields.Solve));
+            threads.Add(new Thread(SolvingAlgorithms.SimpleElimination.Solve));
+            threads.Add(new Thread(SolvingAlgorithms.HiddenElimination.Solve));
+            threads.Add(new Thread(SolvingAlgorithms.NakedGroup.Solve));
 
             foreach (Thread thread in threads)
             {
@@ -36,8 +37,8 @@ namespace Sudoku_Solver
             }
 
             WaitForAllThreads(lifespan);
-/*
-            while (true) ;   // For debug purposes only*/
+
+            //while (true) ;   // For debug purposes only
 
             stopWatch.Stop();
 
