@@ -43,7 +43,7 @@ namespace Sudoku_Solver
 
             TimeSpan ts = stopWatch.Elapsed;
 
-            Console.WriteLine("\nRunTime {0}.{1} Seconds", ts.Seconds, ts.Milliseconds);
+            Console.WriteLine("\nRunTime {0} Seconds", (double) ts.Milliseconds / 1000);
 
             if (ValidateSudoku())
             {
