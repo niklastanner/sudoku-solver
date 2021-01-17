@@ -33,9 +33,9 @@ namespace Sudoku_Solver
 
         public void WaitingAcquire(T t)
         {
-            while (!Acquire(t))
+            lock (locker)
             {
-                lock (locker)
+                while (!Acquire(t))
                 {
                     Monitor.Wait(locker);
                 }
