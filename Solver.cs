@@ -41,10 +41,8 @@ namespace Sudoku_Solver
             //while (true) ;   // For debug purposes only
 
             stopWatch.Stop();
-
             TimeSpan ts = stopWatch.Elapsed;
-
-            Console.WriteLine("\nRunTime {0} Seconds", (double) ts.Milliseconds / 1000);
+            Console.WriteLine("\nRunTime {0}.{1:D3} Seconds", ts.Seconds, ts.Milliseconds);
 
             if (ValidateSudoku())
             {
