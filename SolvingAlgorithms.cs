@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 
 namespace Sudoku_Solver
 {
@@ -225,9 +224,9 @@ namespace Sudoku_Solver
                 List<Field> quad = new List<Field>();
                 List<int> ownPossibilities = field.GetPossibilities();
 
+                locker.WaitingAcquire(sudoku.IndexOf(field));
                 for (int j = k + 1; j < candidates.Count; j++)
                 {
-                    locker.WaitingAcquire(sudoku.IndexOf(field));
                     if (field.HasIdenticalPossibilities(candidates[j]))
                     {
                         // Look for pairs
@@ -246,52 +245,54 @@ namespace Sudoku_Solver
                             quad.Add(candidates[j]);
                         }
                     }
-                    locker.Release(sudoku.IndexOf(field));
                 }
 
                 // The pair is full with one, because the first one is "field" which is not in the list
-                if(pair.Count == 1)
+                if (pair.Count == 1)
                 {
                     pair.Add(field);
-                    NakedGroupRemove(candidates, pair, sudoku);
+                    candidates.Remove(pair[0]);
+                    candidates.Remove(pair[1]);
+                    NakedGroupRemove(candidates, field.GetPossibilities(), sudoku);
                 }
 
                 // The triple is full with two, because the first one is "field" which is not in the list
                 if (triple.Count == 2)
                 {
                     triple.Add(field);
-                    NakedGroupRemove(candidates, triple, sudoku);
+                    candidates.Remove(triple[0]);
+                    candidates.Remove(triple[1]);
+                    candidates.Remove(triple[2]);
+                    NakedGroupRemove(candidates, field.GetPossibilities(), sudoku);
                 }
 
                 // The quad is full with three, because the first one is "field" which is not in the list
                 if (quad.Count == 3)
                 {
                     quad.Add(field);
-                    NakedGroupRemove(candidates, quad, sudoku);
+                    candidates.Remove(quad[0]);
+                    candidates.Remove(quad[1]);
+                    candidates.Remove(quad[2]);
+                    candidates.Remove(quad[3]);
+                    NakedGroupRemove(candidates, field.GetPossibilities(), sudoku);
                 }
+                locker.Release(sudoku.IndexOf(field));
             }
         }
 
-        private static void NakedGroupRemove(List<Field> candidates, List<Field> group, Sudoku sudoku)
+        private static void NakedGroupRemove(List<Field> candidates, List<int> possibilities, Sudoku sudoku)
         {
-            Field reference = group[0];
-            locker.WaitingAcquire(sudoku.IndexOf(reference));
-            List<int> possibilities = reference.GetPossibilities();
             foreach (Field otherField in candidates)
             {
-                if (!group.Contains(otherField))
-                {
-                    int index = sudoku.IndexOf(otherField);
+                int index = sudoku.IndexOf(otherField);
 
-                    locker.WaitingAcquire(index);
-                    for (int i = 0; i < group.Count; i++)
-                    {
-                        sudoku.GetField(index).RemovePossibility(possibilities[i]);
-                    }
-                    locker.Release(index);
+                locker.WaitingAcquire(index);
+                for (int i = 0; i < possibilities.Count; i++)
+                {
+                    sudoku.GetField(index).RemovePossibility(possibilities[i]);
                 }
+                locker.Release(index);
             }
-            locker.Release(sudoku.IndexOf(reference));
         }
         #endregion
     }
