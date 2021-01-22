@@ -4,13 +4,20 @@ This C# Project solves sudokus.
 
 ## How does it work?
 When started the user is requested to type in the sudoku into the console line by line.
-Empty fields are represented by a 0.
+Empty fields in the sudoku are represented by a 0.
 
 Alternatively the factory method in Program.cs can be removed and a hardcoded sudoku can be used. (There are some examples)
 
 > init[index] = value;
 
 The index defines the position of the field. The fields are numbered from 0 - 80. Starting in the top left corner, left to right.
+If you want to use a coded sudoku initialize init with the size of 81:
+
+> int[] init = new int[81];
+
+You also need to modify the line which uses the factory. It must be changed to the following:
+
+> Sudoku sudoku = new Sudoku(init);
 
 ### Example for an easy sudoku
 ```
