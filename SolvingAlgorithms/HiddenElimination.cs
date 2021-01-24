@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Sudoku_Solver.SolvingAlgorithms
+namespace Sudoku_Solver
 {
-    class HiddenElimination
+    class HiddenElimination : SolvingAlgorithm
     {
         /// <summary>
         /// If the number is the only possibility in a row/column/square
@@ -10,7 +10,7 @@ namespace Sudoku_Solver.SolvingAlgorithms
         /// then this number will be set.
         /// </summary>
 
-        public static void Solve(object param)
+        public void Solve(object param)
         {
             Sudoku sudoku = (Sudoku)param;
 

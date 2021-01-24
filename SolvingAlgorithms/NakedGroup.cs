@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Sudoku_Solver.SolvingAlgorithms
+namespace Sudoku_Solver
 {
-    class NakedGroup
+    class NakedGroup : SolvingAlgorithm
     {
         /// <summary>
         /// Two cells in a row/column/square having onlythe same 
@@ -11,7 +11,7 @@ namespace Sudoku_Solver.SolvingAlgorithms
         /// the same row/column/square can be eliminated.
         /// </summary>
 
-        public static void Solve(object param)
+        public void Solve(object param)
         {
             Sudoku sudoku = (Sudoku)param;
 
@@ -46,7 +46,7 @@ namespace Sudoku_Solver.SolvingAlgorithms
             } while (!Solver.IsSolved());
         }
 
-        private static void NakedGroupSearch(List<Field> candidates, Sudoku sudoku)
+        private void NakedGroupSearch(List<Field> candidates, Sudoku sudoku)
         {
             for (int k = 0; k < candidates.Count; k++)
             {
@@ -112,7 +112,7 @@ namespace Sudoku_Solver.SolvingAlgorithms
             }
         }
 
-        private static void NakedGroupRemove(List<Field> candidates, List<int> possibilities, Sudoku sudoku)
+        private void NakedGroupRemove(List<Field> candidates, List<int> possibilities, Sudoku sudoku)
         {
             foreach (Field otherField in candidates)
             {

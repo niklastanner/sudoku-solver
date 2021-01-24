@@ -1,11 +1,11 @@
-﻿namespace Sudoku_Solver.SolvingAlgorithms
+﻿namespace Sudoku_Solver
 {
-    class FillUniqueFields
+    class FillUniqueFields : SolvingAlgorithm
     {
         /// <summary>
         /// Fields with only one possibility will be set
         /// </summary>
-        public static void Solve(object param)
+        public void Solve(object param)
         {
             Sudoku sudoku = (Sudoku)param;
 

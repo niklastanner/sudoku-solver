@@ -8,9 +8,10 @@ namespace Sudoku_Solver
     class Solver
     {
         private static Sudoku sudoku;
+        internal static readonly LockerList<int> locker = new LockerList<int>();
+        private List<SolvingAlgorithm> algorithms = new List<SolvingAlgorithm>();
         private readonly List<Thread> threads = new List<Thread>();
         private readonly int lifespan = 1000 * 5;
-        internal static readonly LockerList<int> locker = new LockerList<int>();
 
         public Solver(Sudoku sudoku)
         {
@@ -25,10 +26,12 @@ namespace Sudoku_Solver
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            threads.Add(new Thread(SolvingAlgorithms.FillUniqueFields.Solve));
-            threads.Add(new Thread(SolvingAlgorithms.SimpleElimination.Solve));
-            threads.Add(new Thread(SolvingAlgorithms.HiddenElimination.Solve));
-            threads.Add(new Thread(SolvingAlgorithms.NakedGroup.Solve));
+            algorithms = ChooseAlgorithms.GetAlgorithms(SolvingAlgorithms.All);
+            algorithms.ForEach(algorithm =>
+            {
+                Console.WriteLine("Using " + algorithm.ToString());
+                threads.Add(new Thread(algorithm.Solve));
+            });
 
             foreach (Thread thread in threads)
             {
@@ -37,8 +40,6 @@ namespace Sudoku_Solver
             }
 
             WaitForAllThreads(lifespan);
-
-            //while (true) ;   // For debug purposes only
 
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;

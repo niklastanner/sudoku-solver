@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 
-namespace Sudoku_Solver.SolvingAlgorithms
+namespace Sudoku_Solver
 {
-    class SimpleElimination
+    class SimpleElimination : SolvingAlgorithm
     {
         /// <summary>
         /// Reduce possibilities as low as possible
         /// with known numbers in row/column/square
         /// </summary>
 
-        public static void Solve(object param)
+        public void Solve(object param)
         {
             Sudoku sudoku = (Sudoku)param;
 
