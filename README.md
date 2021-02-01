@@ -1,6 +1,6 @@
 # Welcome to Sudoku Solver
 
-This C# Project solves sudokus.
+This C# Project solves sudokus using common techniques instead of bruteforce (like backtracking).
 
 ## How does it work?
 When started the user is requested to type in the sudoku into the console line by line.
