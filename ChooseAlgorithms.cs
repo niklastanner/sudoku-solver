@@ -24,6 +24,10 @@ namespace Sudoku_Solver
             {
                 algorithms.Add(new NakedGroup());
             }
+            if ((requested & SolvingAlgorithms.Omission) != 0)
+            {
+                algorithms.Add(new Omission());
+            }
 
             return algorithms;
         }
