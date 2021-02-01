@@ -212,6 +212,98 @@ namespace Sudoku_Solver
 
             return tuple;
         }
+
+        public static bool AreSameSquare(Field field1, Field field2, Sudoku sudoku)
+        {
+            int index1 = sudoku.IndexOf(field1);
+            int index2 = sudoku.IndexOf(field2);
+            index1 = (index1 / 27 * 27) + (index1 % 9) - (index1 % 3);
+            index2 = (index2 / 27 * 27) + (index2 % 9) - (index2 % 3);
+
+            if (index1 == index2)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool AreSameRow(Field field1, Field field2, Sudoku sudoku)
+        {
+            int index1 = sudoku.IndexOf(field1);
+            int index2 = sudoku.IndexOf(field2);
+            index1 = index1 / 9 * 9;
+            index2 = index2 / 9 * 9;
+
+            if (index1 == index2)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool AreSameColumn(Field field1, Field field2, Sudoku sudoku)
+        {
+            int index1 = sudoku.IndexOf(field1);
+            int index2 = sudoku.IndexOf(field2);
+            index1 = index1 % 9;
+            index2 = index2 % 9;
+
+            if (index1 == index2)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static int[] GetMissingNumbersInRow(int index, Sudoku sudoku)
+        {
+            List<int> list = GetNumbersInRow(index, sudoku);
+            int[] missing = new int[9 - list.Count];
+
+            int count = 0;
+            for(int i = 1; i < 10; i++)
+            {
+                if (!list.Contains(i))
+                {
+                    missing[count] = i;
+                    count++;
+                }
+            }
+
+            return missing;
+        }
+        public static int[] GetMissingNumbersInColumn(int index, Sudoku sudoku)
+        {
+            List<int> list = GetNumbersInColumn(index, sudoku);
+            int[] missing = new int[9 - list.Count];
+
+            int count = 0;
+            for (int i = 1; i < 10; i++)
+            {
+                if (!list.Contains(i))
+                {
+                    missing[count] = i;
+                }
+            }
+
+            return missing;
+        }
+        public static int[] GetMissingNumbersInSquare(int index, Sudoku sudoku)
+        {
+            List<int> list = GetNumbersInSquare(index, sudoku);
+            int[] missing = new int[9 - list.Count];
+
+            int count = 0;
+            for (int i = 1; i < 10; i++)
+            {
+                if (!list.Contains(i))
+                {
+                    missing[count] = i;
+                }
+            }
+
+            return missing;
+        }
         #endregion
 
         #region Validation Methods
