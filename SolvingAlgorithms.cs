@@ -5,7 +5,7 @@ namespace Sudoku_Solver
     [Flags]
     enum SolvingAlgorithms
     {
-        All = 7,
+        All = 31,
         FillUniqueFileds = 1,
         SimpleElimination = 2,
         HiddenElimination = 4,
